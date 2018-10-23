@@ -2,28 +2,7 @@
 
 import pygame
 
-def prompt(surface, message, x=0, y=0, width=100, height=100):
-    """Will prompt the user with a message and return what the user inputs.
-    
-    Please note that this method is async, it will stop execution until the
-    user inputs something.
-    This method only calls prompt(surface, message, rect) constructing a new
-    rect with the parameters given
-
-    Input:
-        surface - the surface to show the prompt box
-        message - the message to prompt
-        x - the x coordinate of the top left corner
-        y - the y coordinate of the top left corner
-        width - the width of the box
-        height - the height of the box
-
-    Output:
-        The string inputed by the user as the answer
-    """
-    return prompt(surface, message, pygame.Rect(x, y, width, height))
-
-def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100)):
+def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100), bg_color=(0, 0, 0), text_color=(255, 255, 255)):
     """Will prompt the user with a message and return what the user inputs.
     
     Please note that this method is async, it will stop execution until the
@@ -47,9 +26,11 @@ def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100)):
     font = pygame.font.SysFont(None, int(rect.height * 0.9 / 2)) #Leave 10% for margin
     while True: #Wait until next event, if its a keyboard event process it
         #Draw all box
-        box.fill((0, 0, 0))
-        box.blit(font.render(message, 0, (255, 255, 255)), (0, 0)) #Print message
-        box.blit(font.render(introduced, 0, (255, 255, 255)), (0, rect.height * 0.9 / 2)) #Print the input so far
+        box.fill(bg_color) #TODO make the text become smaller if needed
+        message_width, message_height = font.size(message) #TODO fix this garbage and make it more readable
+        box.blit(font.render(message, 0, text_color), ((rect.width - message_width)/2, (rect.height/2 - message_height)/2)) #Print message, adjust to be on middle
+        introduced_width, introduced_height = font.size(introduced)
+        box.blit(font.render(introduced, 0, text_color), ((rect.width - introduced_width)/2, rect.height/2 + (rect.height/2 - introduced_height)/2)) #Print the input so far, adjust it also
         surface.blit(box, rect)
         pygame.display.update()
 
