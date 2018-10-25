@@ -36,7 +36,8 @@ def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100), bg_color=(0, 0, 0
 
         #Wait for input
         evt = pygame.event.wait()
-        if evt.type == pygame.KEYDOWN:
+        if evt.type == pygame.QUIT: break
+        elif evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_BACKSPACE:
                 introduced = introduced[:-1]
             elif evt.key == pygame.K_RETURN:

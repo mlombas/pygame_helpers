@@ -26,17 +26,34 @@ def print_bounded(surface, text, rect, color=(0, 0, 0), font_name=None):
         font_name - the name of the font (optional)
     Output: None
     """
-    #Calculate char height
+    if not text: return
+    #With a little bit of luck I will modify all this fucking shit so Imma let this here totally uncommented, im sorry little guy from the future
     lines = [text]
-    ch_height = rect.height
-    while any(pygame.font.SysFont(font_name, ch_height).size(line)[0] > rect.width for line in lines): #If any line is wider than the rect, add a new line and retry
-        n_lines = len(lines) + 1
-        print(len(text) / n_lines)
-        lines = separate_in_lines(text, int(len(text) / n_lines))
-        ch_height = int(rect.height / len(lines))
+    test_char_width, test_char_height = pygame.font.SysFont(font_name, 10).size("0")
+    rate = test_char_height / test_char_width   
+
+    #Calculate char height
+    char_height = 0
+    while True:
+        proposed_height = min(
+                    rect.height / len(lines),
+                    rate * rect.width / (len(text) / len(lines))
+                ) #chose the largest viable height
+
+        next_proposed_height = min(
+                    rect.height / (len(lines) + 1), 
+                    rate * rect.width / (len(text) / (len(lines) + 1))
+                ) #chose the largest viable height with one more line
+
+        if proposed_height < next_proposed_height: #In next is bigger then chose that
+            n_char_per_line = int(len(text) / (len(lines) + 1))
+            lines = separate_in_lines(text, n_char_per_line)
+        else:
+            char_height = int(proposed_height)
+            break
 
     #Print in surface
     for i, line in enumerate(lines):
-        rendered = pygame.font.SysFont(font_name, ch_height).render(line, 0, color)
-        blit_centered(surface, rendered, (rect.width/2, rect.y + ch_height * (i + 1/2)))
+        rendered = pygame.font.SysFont(font_name, char_height).render(line, 0, color)
+        blit_centered(surface, rendered, (rect.width/2, rect.y + char_height * (i + 1/2)))
         
