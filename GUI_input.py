@@ -1,4 +1,5 @@
-"""Provides some helper methods and classes to work with input in pygame"""
+"""Provides some helper methods and classes to work with input in pygame
+"""
 
 import text
 import pygame
@@ -28,8 +29,8 @@ def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100), bg_color=(0, 0, 0
     while True: #Wait until next event, if its a keyboard event process it
         #Draw all box
         box.fill(bg_color) #TODO make this look better (in code, I mean make the code look as if it were writen by a decent human being)
-        mocoma_print.print_bounded(box, message, pygame.Rect(rect.x, rect.y, rect.width, rect.height/2), text_color)
-        mocoma_print.print_bounded(box, introduced, pygame.Rect(rect.x, rect.y + rect.height/2, rect.width, rect.height/2), text_color)
+        text.print_bounded(box, message, pygame.Rect(rect.x, rect.y, rect.width, rect.height/2), text_color)
+        text.print_bounded(box, introduced, pygame.Rect(rect.x, rect.y + rect.height/2, rect.width, rect.height/2), text_color)
         surface.blit(box, rect)
         pygame.display.update()
 

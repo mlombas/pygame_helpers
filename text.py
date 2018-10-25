@@ -1,10 +1,12 @@
 """This module provides useful methods to print to surface various types of data
 """
 
+from util import separate_in_lines
+from draw import blit_centered
 from math import floor, ceil
-from pygame import font
+import pygame
 
-if font.get_init(): font.init() #Ensure init
+if pygame.font.get_init(): pygame.font.init() #Ensure init
 
 #TODO add this method but works with multiple lines
 def print_bounded(surface, text, rect, color=(0, 0, 0), font_name=None):
@@ -17,36 +19,24 @@ def print_bounded(surface, text, rect, color=(0, 0, 0), font_name=None):
     Does not accept newline characters
 
     Input:
-        surface - a pygame surface in which to draw
-        text - the text to be printed
-        rect - the bounds of the text
+        surface   - a pygame surface in which to draw
+        text      - the text to be printed
+        rect      - the bounds of the text
+        color     - the color of the text (optional)
+        font_name - the name of the font (optional)
     Output: None
     """
-    if len(text) == 0: return
+    #Calculate char height
+    lines = [text]
+    ch_height = rect.height
+    while any(pygame.font.SysFont(font_name, ch_height).size(line)[0] > rect.width for line in lines): #If any line is wider than the rect, add a new line and retry
+        n_lines = len(lines) + 1
+        print(len(text) / n_lines)
+        lines = separate_in_lines(text, int(len(text) / n_lines))
+        ch_height = int(rect.height / len(lines))
 
-    #Calculate parameters
-    char_test_width, char_test_height = font.SysFont(font_name, rect.height).size("0") #TODO fix this to work better, now it leaves margins at the sides 
-    char_rate = char_test_width / char_test_height #Get relationship in a single char
-    chars_per_line = ceil((len(text) * rect.width / (char_rate * rect.height))**(1/2)) #Those formulas I created them with my bare hands, hope you like it
-    maximum_size = min(rect.height, ceil(rect.width / (chars_per_line * char_rate)))
-    
-    #Print the text
-    lines = [text[i:i+chars_per_line] for i in range(0, len(text), chars_per_line)] #Split the lines
-    for i, line in enumerate(lines): 
-        rendered_text = font.SysFont(font_name, maximum_size).render(line, 0, color)
-        location = (rect.x + rect.width/2, rect.y + rect.height/len(lines) * (i + 0.5)) #set location, the height aligned to fit various lines
-        blit_centered(surface, rendered_text, location)
-
-
-def blit_centered(surface, other_surface, location):
-    """Draws other_surface centered on location
-    
-    Input:
-        surface - the surface in which to draw
-        other_surface - the surface to draw
-        location - the location, as a (x, y) tuple
-    Output: None
-    """
-    width, height = other_surface.get_size()
-    surface.blit(other_surface, (location[0] - width/2, location[1] - height/2))
-
+    #Print in surface
+    for i, line in enumerate(lines):
+        rendered = pygame.font.SysFont(font_name, ch_height).render(line, 0, color)
+        blit_centered(surface, rendered, (rect.width/2, rect.y + ch_height * (i + 1/2)))
+        
