@@ -1,8 +1,8 @@
 """This module provides useful methods to print to surface various types of data
 """
 
-from util import separate_in_lines
-from draw import blit_centered
+from pygame_helpers.util import separate_in_lines
+from pygame_helpers.draw import blit_centered
 from math import floor, ceil
 import pygame
 

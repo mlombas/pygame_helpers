@@ -1,7 +1,6 @@
 """Provides some helper methods and classes to work with input in pygame
 """
-
-import text
+from pygame_helpers import text
 import pygame
 
 def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100), bg_color=(0, 0, 0), text_color=(255, 255, 255)):
