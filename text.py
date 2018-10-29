@@ -1,8 +1,8 @@
 """This module provides useful methods to print to surface various types of data
 """
 
-from pygame_helpers.util import separate_in_lines
-from pygame_helpers.draw import blit_centered
+from util import separate_in_lines
+from draw import blit_centered
 from math import floor, ceil
 import pygame
 
@@ -27,11 +27,17 @@ def print_bounded(surface, text, rect, color=(0, 0, 0), font_name=None):
     Output: None
     """
     if not text: return
-    #With a little bit of luck I will modify all this fucking shit so Imma let this here totally uncommented, im sorry little guy from the future
+    
     rate = get_font_rate(font_name)
     n_lines = 0
     while True:
-        n_lines += 1 #TODO end this
+        n_lines += 1
+        max_viable_chars = int(rect.width / (rect.height / n_lines / rate))
+        if max_viable_chars * n_lines >= len(text): break
+   
+    lines = separate_in_lines(text, max_viable_chars)
+    char_height = int(rect.height / n_lines)
+    print(char_height)
 
     #Print in surface
     for i, line in enumerate(lines):

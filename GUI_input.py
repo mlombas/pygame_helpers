@@ -1,6 +1,6 @@
 """Provides some helper methods and classes to work with input in pygame
 """
-from pygame_helpers import text
+import text
 import pygame
 
 def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100), bg_color=(0, 0, 0), text_color=(255, 255, 255)):
@@ -42,5 +42,7 @@ def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100), bg_color=(0, 0, 0
             elif evt.key == pygame.K_RETURN:
                 return introduced #If the user presses enter, return the inputs
             else:
-                introduced += evt.unicode            
+                introduced += evt.unicode     
+
+            print(evt.key)
    
