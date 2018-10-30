@@ -27,7 +27,7 @@ def print_bounded(surface, text, rect, color=(0, 0, 0), font_name=None):
     Output: None
     """
     if not text: return
-    
+    #TODO fix this so it uses all space aviable
     rate = get_font_rate(font_name)
     n_lines = 0
     while True:
@@ -37,7 +37,6 @@ def print_bounded(surface, text, rect, color=(0, 0, 0), font_name=None):
    
     lines = separate_in_lines(text, max_viable_chars)
     char_height = int(rect.height / n_lines)
-    print(char_height)
 
     #Print in surface
     for i, line in enumerate(lines):

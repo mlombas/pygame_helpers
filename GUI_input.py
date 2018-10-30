@@ -44,5 +44,3 @@ def prompt(surface, message, rect=pygame.Rect(0, 0, 100, 100), bg_color=(0, 0, 0
             else:
                 introduced += evt.unicode     
 
-            print(evt.key)
-   
