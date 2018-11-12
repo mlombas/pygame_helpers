@@ -171,7 +171,7 @@ class SurfaceCodex(object):
         name_list = SurfaceCodex.get_name_list()
         for name in names: #could do this with an any() but this way I can actually include the exact name that is provoking the NameError with it
             if name in name_list:
-                raise self.CodexException(f"There is already a surface named {name}") 
+                raise SurfaceCodex.CodexException(f"There is already a surface named {name}") 
 
         to_store = SurfaceCodex.SurfaceHolder(surface, *names, origin=origin)
         if to_store in SurfaceCodex._holders:
@@ -212,7 +212,7 @@ class SurfaceCodex(object):
             CodexException - if name is not in the codex
         """
         if name not in SurfaceCodex.get_name_list():
-            raise self.CodexException(f"No surface named {name}")
+            raise SurfaceCodex.CodexException(f"No surface named {name}")
 
         for holder in SurfaceCodex._holders:
             if name in surf.get_names():
@@ -234,7 +234,7 @@ class SurfaceCodex(object):
             CodexException - if name is not in the codex
         """
         if name not in SurfaceCodex.get_name_list():
-            raise self.CodexException(f"No surface named {name}")
+            raise SurfaceCodex.CodexException(f"No surface named {name}")
 
         for holder in SurfaceCodex._holders:
             if name in surf.get_names():
