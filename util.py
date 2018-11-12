@@ -4,9 +4,9 @@
 from collections import namedtuple
 import pygame
 
-def wait_until_event(events=[pygame.QUIT]):
+def wait_until_event(*events):
     """Waits until some of the passed events happen
-    
+
     Input:
         events - a list with the events to catch
     Output:
@@ -14,7 +14,7 @@ def wait_until_event(events=[pygame.QUIT]):
     """
     pygame.event.get()
     evt = pygame.event.wait()
-    while evt.type not in events: 
+    while evt.type not in events:
         evt = pygame.event.wait()
     
     return evt
@@ -195,7 +195,7 @@ class SurfaceCodex(object):
 
         """
         image = pygame.image.load(file_name)
-        SurfaceCodex._add_surface(image, names, origin=file_name)
+        SurfaceCodex._add_surface(image, *names, origin=file_name)
             
     @staticmethod
     def get_surface(name, dimensions=None):
@@ -215,7 +215,7 @@ class SurfaceCodex(object):
             raise SurfaceCodex.CodexException(f"No surface named {name}")
 
         for holder in SurfaceCodex._holders:
-            if name in surf.get_names():
+            if name in holder.get_names():
                 if dimensions is None: return holder.get_original()
                 else: return holder.get_surface_dimensioned(dimensions)
 
@@ -244,7 +244,7 @@ class SurfaceCodex(object):
     def get_name_list():
         names = []
         for surf in SurfaceCodex._holders: #Loop through every surface and append the names
-            names += surf._names
+            names += list(surf.get_names())
 
-        return names
+        return tuple(names)
 
