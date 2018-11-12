@@ -67,7 +67,7 @@ class SurfaceCodex(object):
             surface_size = surface.get_size()
             self._original = pygame.Surface(surface_size) #save the original separated, this will be what we use to generate dimension variation and we dont want it to change
             self._original.blit(surface, (0, 0)) #gotta blit this so it gets the surface info
-            self.add_dimension(self, surface_size) #add the original size to dimensioned
+            self.add_dimension(surface_size) #add the original size to dimensioned
 
             self._names = names
             self._origin = origin
@@ -103,7 +103,7 @@ class SurfaceCodex(object):
             Output: None
             """
             if dimension not in self.get_added_dimensions(): #If this dimension exists already dont add it
-                new_surface = pygame.transform.scale(self.original, dimension)
+                new_surface = pygame.transform.scale(self._original, dimension)
                 self._dimensioned[dimension] = new_surface
 
         def get_surface_dimensioned(self, dimension):
