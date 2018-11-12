@@ -246,7 +246,7 @@ class SurfaceCodex(object):
     def get_name_list():
         names = []
         for surf in SurfaceCodex._holders: #Loop through every surface and append the names
-            names += surf.names
+            names += surf._names
 
         return names
 
