@@ -141,12 +141,10 @@ class SurfaceCodex(object):
             return tuple(self._dimensioned.keys())
 
         def __eq__(self, other):
-            #if the origin is not the same or the dimensions are not equal, then its a new surface
             #an empty origin is considered as diferent from another empty one (Im gonna have problems with this but gotta keep this like this for now
-            origin_equal = self._origin and other._origin and self._origin == other._origin
-            dimensions_equal = self.get_size() == other.get_size()
-            return origin_equal and dimensions_equal
-        
+            return self._origin and other._origin and self._origin == other._origin
+
+
         def __repr__(self):
             return f"StoredSurface(\n\tnames: {self.names}\n\torigin: {self.origin}\n)"
 
