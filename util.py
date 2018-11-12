@@ -47,31 +47,117 @@ def separate_in_lines(text, max_chars_per_line):
 class SurfaceCodex(object):
     """This class serves the purpose of loading and storing surfaces without repeating them
     """
-    class StoredSurface(pygame.Surface):
+
+    #--------------------------------------Classes---------------------------------------
+    class CodexException(Exception):
+        """Custom exception for this class so its easier to catch errors from here
+        Works as a normal exception
+        """
+        pass
+
+    class SurfaceHolder(object):
         """Helper class to store more information about a surface
         """
-        def __init__(self, surface, *names, file_origin=None):
-            super().__init__(surface.get_size())
-            self.blit(surface, (0, 0)) #gotta blit this so it gets the surface info
-            self.names = names
-            self.file_origin = file_origin
+
+        #-----------------------Variables----------------------
+        _dimensioned = {} 
+        
+        #-----------------------Methods----------------------------------
+        def __init__(self, surface, *names, origin=None):
+            surface_size = surface.get_size()
+            self._original = pygame.Surface(surface_size) #save the original separated, this will be what we use to generate dimension variation and we dont want it to change
+            self._original.blit(surface, (0, 0)) #gotta blit this so it gets the surface info
+            self.add_dimension(self, surface_size) #add the original size to dimensioned
+
+            self._names = names
+            self._origin = origin
+
+        def add_name(self, *names):
+            """Adds a new name, after that this surface collection can be acessed
+            from the SurfaceCodex with this name as well as with all the ones before
+
+            Input: 
+                names - the various names to add
+
+            Output: None
+            """
+            self._names += names
+        
+        def get_names(self):
+            """return the list of names with which this surface can be referenced
+            
+            Input: None
+
+            Output:
+                A tuple of strings
+            """
+
+            return tuple(self._names)
+
+        def add_dimension(self, dimension):
+            """Adds a new dimension to the array of dimensioned images
+
+            Input:
+                dimension - the new dimension to add
+
+            Output: None
+            """
+            if dimension not in self.get_added_dimensions(): #If this dimension exists already dont add it
+                new_surface = pygame.transform.scale(self.original, dimension)
+                self._dimensioned[dimension] = new_surface
+
+        def get_surface_dimensioned(self, dimension):
+            """Returns a surface with the dimensions passed in, adding it to the dimensioned images dict if necessary
+
+            Input:
+                dimension - the dimension to return the image
+
+            Output:
+                the image dimensioned
+            """
+            if dimension not in self.get_added_dimensions(): #If dimension is not added yet, add it
+                self.add_dimension(dimension)
+
+            return self._dimensioned[dimension]
+
+        def get_original(self):
+            """Returns the original surface
+            
+            Input: None
+
+            Output:
+                The original surface with which this was created
+            """
+            return self._dimensioned[self._original.get_size()]
+
+        def get_added_dimensions(self):
+            """Returns the dimensions actually added
+            
+            Input: None
+
+            Output: 
+                a tuple of tuples, each subtuple being a dimension in the form (width, height)
+            """
+            return tuple(self._dimensioned.keys())
 
         def __eq__(self, other):
             #if the origin is not the same or the dimensions are not equal, then its a new surface
             #an empty origin is considered as diferent from another empty one (Im gonna have problems with this but gotta keep this like this for now
-            file_equal = self.file_origin and other.file_origin and self.file_origin == other.file_origin
+            origin_equal = self._origin and other._origin and self._origin == other._origin
             dimensions_equal = self.get_size() == other.get_size()
-            return file_equal and dimensions_equal
+            return origin_equal and dimensions_equal
         
         def __repr__(self):
-            return "StoredSurface(\n\tnames: {}\n\torigin: {}\n)".format(self.names, self.file_origin)
+            return f"StoredSurface(\n\tnames: {self.names}\n\torigin: {self.origin}\n)"
 
-
-    _surfaces = []
+    #-----------------------------Variables-----------------------------------
+    _holders = []
     
+    #-----------------------------Methods------------------------------------
     @staticmethod
-    def add_surface(surface, *names, file_origin=None):
+    def _add_surface(surface, *names, origin=None):
         """Adds a new surface to the codex
+        WARNING: private method, should not use this unless you know what you are doing
 
         Input:
             surface - the surface to add
@@ -87,38 +173,58 @@ class SurfaceCodex(object):
         name_list = SurfaceCodex.get_name_list()
         for name in names: #could do this with an any() but this way I can actually include the exact name that is provoking the NameError with it
             if name in name_list:
-                raise NameError("There is already a surface named {}".format(name)) #TODO make a custom error class for the whole framework
+                raise self.CodexException(f"There is already a surface named {name}") 
 
-        to_store = SurfaceCodex.StoredSurface(surface, *names, file_origin=file_origin)
-        if to_store in SurfaceCodex._surfaces:
-            store_index = SurfaceCodex._surfaces.index(to_store)
-            SurfaceCodex._surfaces[store_index].names += names #if already exists, add names
+        to_store = SurfaceCodex.SurfaceHolder(surface, *names, origin=origin)
+        if to_store in SurfaceCodex._holders:
+            store_index = SurfaceCodex._holders.index(to_store)
+            SurfaceCodex._holders[store_index].add_name(*names) #if already exists, add names
         else:
-            SurfaceCodex._surfaces.append(to_store) #if not, create new
+            SurfaceCodex._holders.append(to_store) #if not, create new
 
     @staticmethod
-    def load_surface(file_name, name, dimensions=None):
+    def load_surface(file_name, *names):
         """Loads a image from a file and adds it to the codex
 
         Input:
             file_name - the name of the file to load
-            name - the the name used to store it
-            dimensions[optional] - the dimensions of the surface, it will be scaled if necessary
+            name(s) - the the name used to store it (can be more than one adding this argument various times)
 
         Output: None
 
         Raises:
-            NameError - if name is already in the codex
+            CodexException - if name is already in the codex
+
         """
         image = pygame.image.load(file_name)
-        if dimensions is not None: #Transform if requested
-            image = pygame.transform.scale(image, dimensions)
+        SurfaceCodex._add_surface(image, names, origin=file_name)
+            
+    @staticmethod
+    def get_surface(name, dimensions=None):
+        """Returns the surface referenced by that name, redimensioned if necessary
 
-        SurfaceCodex.add_surface(image, names, file_origin=file_name)
+        Input:
+            name - the name of the surface
+            dimensions[optional] - the dimension in which this surface will be returned, a (width, height) tuple
+
+        Output:
+            the surface requested
+
+        Raises:
+            CodexException - if name is not in the codex
+        """
+        if name not in SurfaceCodex.get_name_list():
+            raise self.CodexException(f"No surface named {name}")
+
+        for holder in SurfaceCodex._holders:
+            if name in surf.get_names():
+                if dimensions is None: return holder.get_original()
+                else: return holder.get_surface_dimensioned(dimensions)
 
     @staticmethod
-    def get_surface(name):
-        """Get a surface from the codex
+    def _get_holder(name):
+        """Get a SurfaceHolder from the codex
+        WARNING: PRIVATE METHOD, TO GET THE ACTUAL SURFACE USE get_surface
 
         Input:
             name - the name of the surface
@@ -127,19 +233,19 @@ class SurfaceCodex(object):
             The surface
 
         Raises:
-            NameError - if name is not in the codex
+            CodexException - if name is not in the codex
         """
         if name not in SurfaceCodex.get_name_list():
-            raise NameError("No surface named {}".format(name))
+            raise self.CodexException(f"No surface named {name}")
 
-        for surf in SurfaceCodex._surfaces:
-            if name in surf.names:
-                return surf
+        for holder in SurfaceCodex._holders:
+            if name in surf.get_names():
+                return holder
 
     @staticmethod
     def get_name_list():
         names = []
-        for surf in SurfaceCodex._surfaces: #Loop through every surface and append the names
+        for surf in SurfaceCodex._holders: #Loop through every surface and append the names
             names += surf.names
 
         return names
