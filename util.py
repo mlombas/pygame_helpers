@@ -146,7 +146,7 @@ class SurfaceCodex(object):
 
 
         def __repr__(self):
-            return f"StoredSurface(\n\tnames: {self.names}\n\torigin: {self.origin}\n)"
+            return f"StoredSurface(\n\tnames: {self.get_names()}\n\torigin: {self._origin}\n)"
 
     #-----------------------------Variables-----------------------------------
     _holders = []
@@ -213,11 +213,13 @@ class SurfaceCodex(object):
         """
         if name not in SurfaceCodex.get_name_list():
             raise SurfaceCodex.CodexException(f"No surface named {name}")
-
-        for holder in SurfaceCodex._holders:
-            if name in holder.get_names():
-                if dimensions is None: return holder.get_original()
-                else: return holder.get_surface_dimensioned(dimensions)
+        
+        holder = SurfaceCodex._get_holder(name)
+        print(holder)
+        if dimensions is None: 
+            return holder.get_original()
+        else: 
+            return holder.get_surface_dimensioned(dimensions)
 
     @staticmethod
     def _get_holder(name):
@@ -237,7 +239,7 @@ class SurfaceCodex(object):
             raise SurfaceCodex.CodexException(f"No surface named {name}")
 
         for holder in SurfaceCodex._holders:
-            if name in surf.get_names():
+            if name in holder.get_names():
                 return holder
 
     @staticmethod

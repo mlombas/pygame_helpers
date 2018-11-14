@@ -1,3 +1,5 @@
 test.py
 *.swp
+*.jpg
+*.png
 __pycache__/
