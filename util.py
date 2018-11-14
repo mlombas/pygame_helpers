@@ -57,13 +57,11 @@ class SurfaceCodex(object):
 
     class SurfaceHolder(object):
         """Helper class to store more information about a surface
-        """
-
-        #-----------------------Variables----------------------
-        _dimensioned = {} 
+        """ 
         
-        #-----------------------Methods----------------------------------
         def __init__(self, surface, *names, origin=None):
+            self._dimensioned = {} #first initialize array of dimensions, if I try to pre initialize it directly in objects body it links the same dict object to all instances and makes this shit stati
+
             surface_size = surface.get_size()
             self._original = pygame.Surface(surface_size) #save the original separated, this will be what we use to generate dimension variation and we dont want it to change
             self._original.blit(surface, (0, 0)) #gotta blit this so it gets the surface info
@@ -215,7 +213,6 @@ class SurfaceCodex(object):
             raise SurfaceCodex.CodexException(f"No surface named {name}")
         
         holder = SurfaceCodex._get_holder(name)
-        print(holder)
         if dimensions is None: 
             return holder.get_original()
         else: 
