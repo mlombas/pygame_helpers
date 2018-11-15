@@ -63,8 +63,10 @@ class SurfaceCodex(object):
             self._dimensioned = {} #first initialize array of dimensions, if I try to pre initialize it directly in objects body it links the same dict object to all instances and makes this shit stati
 
             surface_size = surface.get_size()
-            self._original = pygame.Surface(surface_size) #save the original separated, this will be what we use to generate dimension variation and we dont want it to change
-            self._original.blit(surface, (0, 0)) #gotta blit this so it gets the surface info
+            origin = pygame.Surface(surface_size, pygame.SRCALPHA, 32) #save the original separated, this will be what we use to generate dimension variation and we dont want it to change
+            origin = origin.convert_alpha() #Add this fucking line cause if not it isnt fucking transparent
+            origin.blit(surface, (0, 0)) #gotta blit this so it gets the surface info
+            self._original = origin
             self.add_dimension(surface_size) #add the original size to dimensioned
 
             self._names = names
