@@ -33,7 +33,7 @@ def print_bounded(surface, text, rect, color=(0, 0, 0), font_name=None):
     while True:
         n_lines += 1
         max_viable_chars = int(rect.width / (rect.height / n_lines / rate))
-        if max_viable_chars * n_lines >= len(text): break
+        if max_viable_chars * n_lines >= len(text) and max_viable_chars > max(len(w) for w in text.split(" ")): break
    
     lines = separate_in_lines(text, max_viable_chars)
     char_height = int(rect.height / n_lines)
